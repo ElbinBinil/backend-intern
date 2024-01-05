@@ -1,10 +1,8 @@
 import { Router } from "express";
+import { registerUser } from "../controllers/user.controller.js";
 
 const router = Router();
 
-router.post("/signup", (req, res) => {
-  const { email, ph_no, name, password } = req.body;
-  console.log(email, ph_no, name, password);
-});
+router.route("/signup").post(registerUser);
 
 export default router;

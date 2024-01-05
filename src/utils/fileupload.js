@@ -1,20 +1,27 @@
 import { cert, initializeApp } from "firebase-admin/app";
 import { getStorage } from "firebase-admin/storage";
+import fs from "fs";
+import { v4 as uuidv4 } from "uuid";
 
-import * as serviceaccount from "../../firebase_secrets.json";
+import serviceaccount from "../../firebase_secrets.json" assert { type: "json" };
 
-initializeApp({
-  credential: cert(serviceaccount),
-  storageBucket: "backend-node-prod-prj.appspot.com",
-});
+try {
+  initializeApp({
+    credential: cert(serviceaccount),
+    storageBucket: "backend-node-prod-prj.appspot.com",
+  });
+} catch (error) {
+  console.error("Error at firebase: ", error);
+}
 
 const bucket = getStorage().bucket();
 
 // added firebase to the project now jus make a reusable function wrapper to upload the file
-async function uploadFile(localFilePath, remoteFilePath) {
+async function uploadFile(localFilePath) {
   try {
     // Upload the file to Firebase Storage
-    await bucket.upload(localFilePath, {
+    const remoteFilePath = `images/profiles/${uuidv4()}`;
+    const response = await bucket.upload(localFilePath, {
       destination: remoteFilePath,
       // You can set custom metadata if needed
       metadata: {
@@ -28,9 +35,12 @@ async function uploadFile(localFilePath, remoteFilePath) {
       expires: "01-01-2100", // Set an appropriate expiration date
     });
 
+    fs.unlinkSync(localFilePath);
+    return response, downloadURL[0];
+
     // Return the download URL
-    return downloadURL[0];
   } catch (error) {
+    fs.unlinkSync(localFilePath);
     console.error("Error uploading file:", error);
     throw new Error("File upload failed");
   }
