@@ -36,7 +36,12 @@ async function uploadFile(localFilePath) {
     });
 
     fs.unlinkSync(localFilePath);
-    return response, downloadURL[0];
+    return {
+      sucess: true,
+      message: "File uploaded",
+      response: response[0],
+      downloadURL: downloadURL[0],
+    };
 
     // Return the download URL
   } catch (error) {

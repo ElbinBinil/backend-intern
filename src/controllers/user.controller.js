@@ -18,6 +18,8 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Provide an valid phone number");
   }
 
+  // console.log(req.body);
+
   if (!email && !phone_no) {
     throw new ApiError(
       400,
@@ -37,13 +39,16 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(409, "User with email or phone number already exists ");
   }
 
-  const profileImageLocalPath = req.files?.profileImage[0]?.path;
+  // console.log(req.file);
+  const profileImageLocalPath = req.file?.path;
 
   if (!profileImageLocalPath) {
     throw new ApiError(400, "Profile image is required!");
   }
 
-  const profile_img = await uploadFile(profileImageLocalPath);
+  const profile_img = (await uploadFile(profileImageLocalPath)).downloadURL;
+
+  // console.log(profile_img.downloadURL);
 
   if (!profile_img) {
     throw new ApiError(400, "Profile file is required");
@@ -53,7 +58,7 @@ const registerUser = asyncHandler(async (req, res) => {
     email: email || "",
     phone_no: phone_no || "",
     name,
-    profileImage: profile_img?.url,
+    profileImage: profile_img,
     password,
   });
 
