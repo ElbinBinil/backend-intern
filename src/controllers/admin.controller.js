@@ -75,4 +75,20 @@ const createAdmin = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, createdUser, "User registered !!"));
 });
 
-export { createAdmin };
+const getAllUser = asyncHandler(async (req, res) => {
+  try {
+    const users = await User.find();
+    console.log(users);
+    return res
+      .status(200)
+      .json(new ApiResponse(200, users, "Retrieved Succussfuly!!!"));
+  } catch (error) {
+    throw new ApiError(400, "Error while retrieving the users");
+  }
+});
+
+const modifyDetails = asyncHandler(async (req, res) => {});
+
+const deleteUser = asyncHandler(async (req, res) => {});
+
+export { createAdmin, getAllUser };
