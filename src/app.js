@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import userRoutes from "./routes/users.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
 import cookieParser from "cookie-parser";
 const app = express();
 
@@ -28,5 +29,6 @@ app.get("/api", (req, res) => {
 });
 
 app.use("/api/users", userRoutes);
+app.use("/api/admin", adminRoutes);
 
 export { app };
