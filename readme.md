@@ -11,6 +11,7 @@ Briefly describe the purpose and goals of your project. Highlight any key featur
 - [Node.js](https://nodejs.org/)
 - [Express.js](https://expressjs.com/)
 - [Firebase](https://firebase.google.com/)
+- [MongoDB](https://www.mongodb.com/)
 
 List the main technologies and frameworks used in your project.
 
