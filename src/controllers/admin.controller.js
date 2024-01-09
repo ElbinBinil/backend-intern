@@ -87,8 +87,38 @@ const getAllUser = asyncHandler(async (req, res) => {
   }
 });
 
-const modifyDetails = asyncHandler(async (req, res) => {});
+const modifyDetails = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(req.params.userId, req.body, {
+      new: true,
+    });
+    return res
+      .status(200)
+      .json(new ApiResponse(200, user, "User detail updated .. Admin"));
+  } catch (error) {
+    throw new ApiError(
+      400,
+      "There was an error while updating user details .. Admin"
+    );
+  }
+});
 
-const deleteUser = asyncHandler(async (req, res) => {});
+const deleteUser = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.userId);
 
-export { createAdmin, getAllUser };
+    if (!user) {
+      throw new ApiError(404, "User not found");
+    }
+    return res
+      .status(200)
+      .json(new ApiResponse(200, user, "User deleted successfully .. Admin"));
+  } catch (error) {
+    throw new ApiError(
+      400,
+      "There was an error while deleting a user .. Admin"
+    );
+  }
+});
+
+export { createAdmin, getAllUser, modifyDetails, deleteUser };
