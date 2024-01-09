@@ -51,4 +51,54 @@ async function uploadFile(localFilePath) {
   }
 }
 
-export { uploadFile };
+async function deleteFile(fileUrl) {
+  try {
+    console.log("Received File URL:", fileUrl);
+
+    // Ensure fileUrl is a string
+    if (typeof fileUrl !== "string") {
+      console.warn("Invalid file URL:", fileUrl);
+      return;
+    }
+
+    // Parse the URL to handle it properly
+    let url;
+    try {
+      url = new URL(fileUrl);
+    } catch (error) {
+      console.warn("Error parsing URL:", error);
+      return;
+    }
+
+    // Log the parsed URL
+    console.log("Parsed URL:", url.toString());
+
+    // Update the startsWith check to handle both Firebase and Google Cloud Storage URLs
+    if (
+      url
+        .toString()
+        .startsWith(
+          "https://firebasestorage.googleapis.com/v0/b/backend-node-prod-prj.appspot.com/o/"
+        ) ||
+      url
+        .toString()
+        .startsWith(
+          "https://storage.googleapis.com/backend-node-prod-prj.appspot.com/"
+        )
+    ) {
+      // const bucket = admin.storage().bucket();
+      const fileName = url.pathname.slice(1); // Remove initial "/" from path
+      await bucket.file(fileName).delete();
+    } else {
+      console.warn(
+        "File URL doesn't match Firebase or Google Cloud Storage format:",
+        fileUrl
+      );
+    }
+  } catch (error) {
+    console.error("Error deleting file from Storage:", error);
+    // Handle error appropriately (e.g., rethrow or log for debugging)
+  }
+}
+
+export { uploadFile, deleteFile };

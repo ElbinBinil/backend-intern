@@ -1,7 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
-import { uploadFile } from "../utils/fileupload.js";
+import { uploadFile, deleteFile } from "../utils/fileupload.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 
 import validator from "validator";
@@ -215,4 +215,85 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   }
 });
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken };
+const modifyName = asyncHandler(async (req, res) => {
+  const { name } = req.body;
+
+  if (!name) {
+    throw new ApiError(401, "Name is required!!");
+  }
+
+  const user = await User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        name: name,
+      },
+    },
+    { new: true }
+  ).select("-password");
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, user, "Account updated successfully"));
+});
+
+const modifyImage = asyncHandler(async (req, res) => {
+  const profileImageLocalPath = req.file?.path;
+
+  if (!profileImageLocalPath) {
+    throw new ApiError(400, "An image is required!");
+  }
+
+  const profile_img = (await uploadFile(profileImageLocalPath)).downloadURL;
+
+  if (!profile_img) {
+    throw new ApiError(400, "Error occured while uploading!");
+  }
+
+  const user = User.findByIdAndUpdate(
+    req.user?._id,
+    {
+      $set: {
+        profileImage: profile_img,
+      },
+    },
+    { new: true }
+  ).select("-password");
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        _id: user._id,
+        name: user.name,
+      },
+      "Profile image updated successfully"
+    )
+  );
+});
+
+const deleteUser = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.user?._id);
+    // console.log(user.profileImage);
+    if (!user) {
+      throw new ApiError(404, "No user found");
+    }
+    // await deleteFile(user.profileImage); <-- Either you could use this function to delete the image
+  } catch (error) {
+    throw new ApiError(400, "Error while deleting the user");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "User deleted successfully"));
+});
+
+export {
+  registerUser,
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+  modifyName,
+  modifyImage,
+  deleteUser,
+};
